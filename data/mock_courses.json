@@ -1,0 +1,52 @@
+[
+  {
+    "course_id": "CS101",
+    "title": "Python Programming Fundamentals",
+    "provider": "Coursera",
+    "description": "Learn syntax, variables, loops, functions, and data structures in Python.",
+    "skills_covered": ["Python", "Algorithms"],
+    "prerequisites": [],
+    "difficulty": "Beginner",
+    "est_hours": 12
+  },
+  {
+    "course_id": "DE101",
+    "title": "SQL & Relational Databases",
+    "provider": "edX",
+    "description": "Master SQL queries, table creation, joins, indexing, and normalization.",
+    "skills_covered": ["SQL", "PostgreSQL", "Data Modeling"],
+    "prerequisites": [],
+    "difficulty": "Beginner",
+    "est_hours": 15
+  },
+  {
+    "course_id": "DE102",
+    "title": "Data Warehousing & ETL Pipelines",
+    "provider": "Udacity",
+    "description": "Build automated ETL pipelines using Python and SQL to populate star schemas.",
+    "skills_covered": ["ETL", "Data Warehousing", "Python", "SQL"],
+    "prerequisites": ["CS101", "DE101"],
+    "difficulty": "Intermediate",
+    "est_hours": 20
+  },
+  {
+    "course_id": "DE103",
+    "title": "Real-Time Streaming with Apache Kafka",
+    "provider": "Pluralsight",
+    "description": "Implement event streaming, producers, consumers, and topic partitioning.",
+    "skills_covered": ["Kafka", "Event Streaming", "System Architecture"],
+    "prerequisites": ["DE102"],
+    "difficulty": "Advanced",
+    "est_hours": 25
+  },
+  {
+    "course_id": "ML101",
+    "title": "Applied Machine Learning with Scikit-Learn",
+    "provider": "Coursera",
+    "description": "Supervised and unsupervised ML models, cross-validation, and feature scaling.",
+    "skills_covered": ["Python", "Machine Learning", "Scikit-Learn"],
+    "prerequisites": ["CS101"],
+    "difficulty": "Intermediate",
+    "est_hours": 18
+  }
+]

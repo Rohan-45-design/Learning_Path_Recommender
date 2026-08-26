@@ -1,0 +1,223 @@
+[
+  {
+    "course_id": "DE101",
+    "title": "Python for Data Science",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in Python for Data Science. Skills: Python.",
+    "skills_covered": [
+      "Python"
+    ],
+    "prerequisites": [],
+    "difficulty": "Beginner",
+    "est_hours": 10
+  },
+  {
+    "course_id": "DE102",
+    "title": "Relational Databases & SQL",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in Relational Databases & SQL. Skills: SQL, PostgreSQL.",
+    "skills_covered": [
+      "SQL",
+      "PostgreSQL"
+    ],
+    "prerequisites": [],
+    "difficulty": "Beginner",
+    "est_hours": 15
+  },
+  {
+    "course_id": "DE103",
+    "title": "Data Warehousing Fundamentals",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in Data Warehousing Fundamentals. Skills: ETL, Data Warehousing.",
+    "skills_covered": [
+      "ETL",
+      "Data Warehousing"
+    ],
+    "prerequisites": [
+      "DE101",
+      "DE102"
+    ],
+    "difficulty": "Intermediate",
+    "est_hours": 20
+  },
+  {
+    "course_id": "DE104",
+    "title": "Distributed Computing with PySpark",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in Distributed Computing with PySpark. Skills: PySpark, Hadoop.",
+    "skills_covered": [
+      "PySpark",
+      "Hadoop"
+    ],
+    "prerequisites": [
+      "DE103"
+    ],
+    "difficulty": "Intermediate",
+    "est_hours": 25
+  },
+  {
+    "course_id": "DE105",
+    "title": "Real-Time Streaming with Apache Kafka",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in Real-Time Streaming with Apache Kafka. Skills: Kafka, Event Streaming.",
+    "skills_covered": [
+      "Kafka",
+      "Event Streaming"
+    ],
+    "prerequisites": [
+      "DE104"
+    ],
+    "difficulty": "Advanced",
+    "est_hours": 30
+  },
+  {
+    "course_id": "DE106",
+    "title": "Data Mesh Architecture",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in Data Mesh Architecture. Skills: Data Governance, System Architecture.",
+    "skills_covered": [
+      "Data Governance",
+      "System Architecture"
+    ],
+    "prerequisites": [
+      "DE105"
+    ],
+    "difficulty": "Advanced",
+    "est_hours": 20
+  },
+  {
+    "course_id": "ML101",
+    "title": "Linear Algebra for ML",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in Linear Algebra for ML. Skills: Math, Linear Algebra.",
+    "skills_covered": [
+      "Math",
+      "Linear Algebra"
+    ],
+    "prerequisites": [],
+    "difficulty": "Beginner",
+    "est_hours": 12
+  },
+  {
+    "course_id": "ML102",
+    "title": "Applied Machine Learning",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in Applied Machine Learning. Skills: Machine Learning, Scikit-Learn.",
+    "skills_covered": [
+      "Machine Learning",
+      "Scikit-Learn"
+    ],
+    "prerequisites": [
+      "ML101",
+      "DE101"
+    ],
+    "difficulty": "Intermediate",
+    "est_hours": 18
+  },
+  {
+    "course_id": "ML103",
+    "title": "Deep Learning & Neural Networks",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in Deep Learning & Neural Networks. Skills: PyTorch, Deep Learning.",
+    "skills_covered": [
+      "PyTorch",
+      "Deep Learning"
+    ],
+    "prerequisites": [
+      "ML102"
+    ],
+    "difficulty": "Intermediate",
+    "est_hours": 25
+  },
+  {
+    "course_id": "ML104",
+    "title": "Natural Language Processing",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in Natural Language Processing. Skills: NLP, Transformers, LLMs.",
+    "skills_covered": [
+      "NLP",
+      "Transformers",
+      "LLMs"
+    ],
+    "prerequisites": [
+      "ML103"
+    ],
+    "difficulty": "Advanced",
+    "est_hours": 30
+  },
+  {
+    "course_id": "ML105",
+    "title": "MLOps: Deployment & Monitoring",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in MLOps: Deployment & Monitoring. Skills: MLOps, Docker, FastAPI.",
+    "skills_covered": [
+      "MLOps",
+      "Docker",
+      "FastAPI"
+    ],
+    "prerequisites": [
+      "ML103"
+    ],
+    "difficulty": "Advanced",
+    "est_hours": 22
+  },
+  {
+    "course_id": "WEB101",
+    "title": "HTML, CSS, and Modern JavaScript",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in HTML, CSS, and Modern JavaScript. Skills: JavaScript, HTML/CSS.",
+    "skills_covered": [
+      "JavaScript",
+      "HTML/CSS"
+    ],
+    "prerequisites": [],
+    "difficulty": "Beginner",
+    "est_hours": 10
+  },
+  {
+    "course_id": "WEB102",
+    "title": "Frontend Development with React",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in Frontend Development with React. Skills: React, Frontend.",
+    "skills_covered": [
+      "React",
+      "Frontend"
+    ],
+    "prerequisites": [
+      "WEB101"
+    ],
+    "difficulty": "Intermediate",
+    "est_hours": 20
+  },
+  {
+    "course_id": "WEB103",
+    "title": "Backend Services with Node.js",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in Backend Services with Node.js. Skills: Node.js, REST API.",
+    "skills_covered": [
+      "Node.js",
+      "REST API"
+    ],
+    "prerequisites": [
+      "WEB101"
+    ],
+    "difficulty": "Intermediate",
+    "est_hours": 18
+  },
+  {
+    "course_id": "WEB104",
+    "title": "Full Stack Next.js Architecture",
+    "provider": "Coursera / edX",
+    "description": "Hands-on training in Full Stack Next.js Architecture. Skills: Next.js, Full Stack.",
+    "skills_covered": [
+      "Next.js",
+      "Full Stack"
+    ],
+    "prerequisites": [
+      "WEB102",
+      "WEB103"
+    ],
+    "difficulty": "Advanced",
+    "est_hours": 25
+  }
+]
