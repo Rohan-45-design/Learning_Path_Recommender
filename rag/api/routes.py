@@ -80,10 +80,9 @@ class ChatResponse(BaseModel):
 
 @router.post("/chat", response_model=ChatResponse)
 def rag_chat(request: ChatRequest):
-    """Main RAG endpoint returning grounded answer, structured recommendations, learning path, and sources."""
+    """Main RAG endpoint returning grounded answer, structured recommendations, learning path, next_skill, and sources."""
     try:
         pipeline = get_pipeline()
-
         profile_dict = (
             request.learner_profile.get_profile_dict()
             if request.learner_profile
@@ -106,10 +105,9 @@ def rag_chat(request: ChatRequest):
 
 @router.post("/retrieve")
 def rag_retrieve(request: RetrieveRequest):
-    """Candidate resource retrieval endpoint for Recommendation Engine (Member 2 & 3)."""
+    """Candidate resource retrieval endpoint for Recommendation Engine."""
     try:
         pipeline = get_pipeline()
-
         profile_dict = (
             request.learner_profile.get_profile_dict()
             if request.learner_profile
@@ -135,7 +133,6 @@ def rag_feedback(request: FeedbackRequest):
     """Adaptive feedback endpoint updating learner profile skills & level."""
     try:
         pipeline = get_pipeline()
-
         profile_dict = request.learner_profile.get_profile_dict()
 
         res = pipeline.process_feedback(
