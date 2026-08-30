@@ -69,7 +69,7 @@ class FeedbackRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     answer: str
-    sources: List[Dict[str, str]]
+    sources: List[Dict[str, Any]]
     confidence: float
     recommendations: Optional[List[Dict[str, Any]]] = None
     learning_path: Optional[List[Dict[str, Any]]] = None
