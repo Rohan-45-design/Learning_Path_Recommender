@@ -2,7 +2,8 @@ import os
 import chromadb
 from typing import Dict, Any, Optional, List
 from rag.embeddings import EmbeddingModel
-from rag.vector_store import CustomEmbeddingAdapter
+from rag.vector_store import CustomEmbeddingAdapter, CourseVectorStore
+from rag.load_data import load_courses
 
 class CourseRetriever:
     def __init__(self, db_path: str = "./chroma_db", collection_name: str = "learning_resources"):
@@ -10,10 +11,31 @@ class CourseRetriever:
         self.client = chromadb.PersistentClient(path=db_path)
         self.embedding_model = EmbeddingModel()
         self.adapter = CustomEmbeddingAdapter(self.embedding_model)
-        self.collection = self.client.get_collection(
-            name=collection_name,
-            embedding_function=self.adapter
-        )
+        
+        try:
+            self.collection = self.client.get_collection(
+                name=collection_name,
+                embedding_function=self.adapter
+            )
+        except Exception:
+            self.collection = self.client.get_or_create_collection(
+                name=collection_name,
+                embedding_function=self.adapter
+            )
+
+        # Auto-index if collection is empty (e.g. fresh clone / test runner)
+        if self.collection.count() == 0:
+            csv_path = "data/Coursera.csv"
+            if not os.path.exists(csv_path):
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                csv_path = os.path.join(base_dir, "data", "Coursera.csv")
+            
+            if os.path.exists(csv_path):
+                print(f"[CourseRetriever] Auto-indexing courses from {csv_path}...")
+                df = load_courses(csv_path)
+                store = CourseVectorStore(db_path=db_path, collection_name=collection_name)
+                store.add_courses_batch(df)
+                self.collection = store.collection
 
     def retrieve(
         self,
@@ -47,9 +69,14 @@ Question:
 {query}
 """.strip()
 
+        count = self.collection.count()
+        if count == 0:
+            return {"documents": [[]], "metadatas": [[]], "distances": [[]]}
+
+        actual_k = min(top_k, count)
         query_embedding = self.embedding_model.encode([search_query])[0]
         results = self.collection.query(
             query_embeddings=[query_embedding],
-            n_results=top_k
+            n_results=actual_k
         )
         return results

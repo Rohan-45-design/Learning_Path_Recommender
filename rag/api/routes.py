@@ -21,13 +21,24 @@ def get_pipeline() -> RAGPipeline:
 class LearnerProfileInput(BaseModel):
     goal: Optional[str] = "GenAI Engineer"
     skills: Optional[List[str]] = Field(default_factory=lambda: ["Python", "Machine Learning"])
+    current_skills: Optional[List[str]] = None
     level: Optional[str] = "Intermediate"
+
+    def to_profile_dict(self) -> Dict[str, Any]:
+        skills_list = self.current_skills if self.current_skills is not None else (self.skills or [])
+        return {
+            "goal": self.goal,
+            "current_skills": skills_list,
+            "skills": skills_list,
+            "level": self.level
+        }
 
 class ChatRequest(BaseModel):
     query: str
     learner_id: Optional[str] = "student_123"
     learner_profile: Optional[LearnerProfileInput] = None
     skill_gaps: Optional[List[str]] = None
+    requested_why_not_skill: Optional[str] = None
 
 class RetrieveRequest(BaseModel):
     query: str
@@ -49,19 +60,22 @@ class ChatResponse(BaseModel):
     recommendations: Optional[List[Dict[str, Any]]] = None
     learning_path: Optional[List[Dict[str, Any]]] = None
     skill_gaps: Optional[List[str]] = None
+    next_skill: Optional[str] = None
+    why_not_explanation: Optional[Dict[str, Any]] = None
 
 @router.post("/chat", response_model=ChatResponse)
 def rag_chat(request: ChatRequest):
-    """Main RAG endpoint returning grounded answer, structured recommendations, learning path, and sources."""
+    """Main RAG endpoint returning grounded answer, structured recommendations, learning path, next_skill, and sources."""
     try:
         pipeline = get_pipeline()
-        profile_dict = request.learner_profile.model_dump() if request.learner_profile else None
+        profile_dict = request.learner_profile.to_profile_dict() if request.learner_profile else None
         
         response = pipeline.query(
             query=request.query,
             student_id=request.learner_id,
             learner_profile=profile_dict,
-            skill_gaps=request.skill_gaps
+            skill_gaps=request.skill_gaps,
+            requested_why_not_skill=request.requested_why_not_skill
         )
         return response
     except Exception as e:
@@ -69,10 +83,10 @@ def rag_chat(request: ChatRequest):
 
 @router.post("/retrieve")
 def rag_retrieve(request: RetrieveRequest):
-    """Candidate resource retrieval endpoint for Recommendation Engine (Member 2 & 3)."""
+    """Candidate resource retrieval endpoint for Recommendation Engine."""
     try:
         pipeline = get_pipeline()
-        profile_dict = request.learner_profile.model_dump() if request.learner_profile else None
+        profile_dict = request.learner_profile.to_profile_dict() if request.learner_profile else None
         
         candidates = pipeline.retrieve_resources(
             query=request.query,
@@ -90,7 +104,7 @@ def rag_feedback(request: FeedbackRequest):
     """Adaptive feedback endpoint updating learner profile skills & level."""
     try:
         pipeline = get_pipeline()
-        profile_dict = request.learner_profile.model_dump()
+        profile_dict = request.learner_profile.to_profile_dict()
         res = pipeline.process_feedback(
             learner_profile=profile_dict,
             course_completed=request.course_completed,
