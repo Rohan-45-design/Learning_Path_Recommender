@@ -1,0 +1,11 @@
+{
+  "course_id": "CS_LLM_501",
+  "title": "Large Language Models (LLMs) & Fine-Tuning",
+  "description": "Master LLM architectures, instruction tuning, prompt engineering, parameter-efficient fine-tuning (PEFT/LoRA), and model alignment techniques.",
+  "skills_covered": ["LLM", "Prompt Engineering", "LoRA", "Fine-Tuning", "GenAI"],
+  "prerequisites": ["Transformers", "Deep Learning"],
+  "difficulty": "Advanced",
+  "duration_hours": 45,
+  "career_roles": ["GenAI Engineer", "LLM Specialist", "AI Engineer"],
+  "projects": ["Fine-Tuning LLaMA Model for Domain-Specific Q&A"]
+}

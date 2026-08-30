@@ -1,0 +1,16 @@
+target_skill,prerequisite_skill,dependency_level
+Linear Algebra,Python,Optional
+Machine Learning,Python,Required
+Machine Learning,Linear Algebra,Required
+Deep Learning,Python,Required
+Deep Learning,Machine Learning,Required
+Neural Networks,Deep Learning,Required
+Backpropagation,Neural Networks,Required
+CNN,Deep Learning,Required
+NLP,Deep Learning,Required
+Transformers,Deep Learning,Required
+Transformers,NLP,Required
+LLM,Transformers,Required
+RAG,LLM,Required
+RAG,Vector Databases,Required
+Vector Databases,Python,Required

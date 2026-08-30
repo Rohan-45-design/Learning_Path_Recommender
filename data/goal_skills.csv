@@ -1,0 +1,47 @@
+goal,skill
+AI Engineer,python
+AI Engineer,machine_learning
+AI Engineer,deep_learning
+AI Engineer,neural_networks
+AI Engineer,computer_vision
+AI Engineer,nlp
+AI Engineer,transformers
+AI Engineer,llm
+AI Engineer,mlops
+GenAI Engineer,python
+GenAI Engineer,machine_learning
+GenAI Engineer,deep_learning
+GenAI Engineer,transformers
+GenAI Engineer,llm
+GenAI Engineer,generative_ai
+GenAI Engineer,rag
+GenAI Engineer,ai_agents
+Data Scientist,python
+Data Scientist,statistics
+Data Scientist,sql
+Data Scientist,data_analysis
+Data Scientist,machine_learning
+Data Scientist,regression
+NLP Engineer,python
+NLP Engineer,machine_learning
+NLP Engineer,deep_learning
+NLP Engineer,nlp
+NLP Engineer,transformers
+NLP Engineer,llm
+Computer Vision Engineer,python
+Computer Vision Engineer,machine_learning
+Computer Vision Engineer,deep_learning
+Computer Vision Engineer,computer_vision
+Computer Vision Engineer,neural_networks
+ML Engineer,python
+ML Engineer,statistics
+ML Engineer,machine_learning
+ML Engineer,deep_learning
+ML Engineer,fastapi
+ML Engineer,docker
+ML Engineer,mlops
+Software Engineer,python
+Software Engineer,sql
+Software Engineer,fastapi
+Software Engineer,docker
+Software Engineer,cloud

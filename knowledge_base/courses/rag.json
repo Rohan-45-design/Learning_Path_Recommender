@@ -1,0 +1,11 @@
+{
+  "course_id": "CS_RAG_601",
+  "title": "Retrieval-Augmented Generation (RAG) Architecture",
+  "description": "Design end-to-end production RAG pipelines utilizing vector databases, dense embeddings, metadata filtering, topological prerequisite reranking, and anti-hallucination grounded prompts.",
+  "skills_covered": ["RAG", "Vector Databases", "Semantic Search", "Context Construction", "Prompt Engineering"],
+  "prerequisites": ["LLM", "Python"],
+  "difficulty": "Advanced",
+  "duration_hours": 35,
+  "career_roles": ["GenAI Engineer", "AI Architect", "RAG Developer"],
+  "projects": ["Production Grounded RAG Assistant System"]
+}

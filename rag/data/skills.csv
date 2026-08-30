@@ -1,0 +1,13 @@
+skill_id,name,description,prerequisite_skills,category
+S101,Python,Core programming language syntax data structures object-oriented programming and standard libraries.,None,Programming
+S102,Linear Algebra,Matrix operations vectors eigenvalues eigenvectors and matrix factorization techniques.,None,Mathematics
+S103,Machine Learning,Supervised and unsupervised algorithms evaluation metrics decision trees regression and clustering.,Python;Linear Algebra,AI Core
+S104,Deep Learning,Artificial neural networks activation functions backpropagation gradient descent and loss optimization.,Python;Machine Learning,AI Advanced
+S105,Neural Networks,Layered architecture of artificial neurons activation functions forward pass and backpropagation updates.,Deep Learning,AI Advanced
+S106,Backpropagation,Algorithm for computing gradients of the loss function with respect to weights using chain rule.,Neural Networks,AI Advanced
+S107,CNN,Convolutional neural networks pooling layers feature maps for spatial pattern and image recognition.,Deep Learning,Computer Vision
+S108,NLP,Natural language processing tokenization text classification embeddings and language modeling.,Deep Learning,NLP
+S109,Transformers,Self-attention mechanism encoder-decoder architecture multi-head attention and transformer blocks.,Deep Learning;NLP,GenAI
+S110,LLM,Large language models architecture pre-training instruction tuning prompt engineering and LoRA fine-tuning.,Transformers,GenAI
+S111,RAG,Retrieval-Augmented Generation context window management vector database embedding index and grounded generation.,LLM;Python,GenAI
+S112,Vector Databases,Indexing and fast nearest neighbor retrieval of embedding vectors using cosine similarity or Euclidean distance.,Python,GenAI

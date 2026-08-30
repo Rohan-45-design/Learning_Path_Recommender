@@ -1,0 +1,11 @@
+{
+  "course_id": "CS_DL_301",
+  "title": "Deep Learning Fundamentals & Neural Networks",
+  "description": "Comprehensive guide to artificial neural networks, activation functions, forward propagation, backpropagation gradient calculus, optimization algorithms, and PyTorch framework.",
+  "skills_covered": ["Deep Learning", "Neural Networks", "Backpropagation", "PyTorch", "Optimization"],
+  "prerequisites": ["Python", "Machine Learning"],
+  "difficulty": "Intermediate",
+  "duration_hours": 35,
+  "career_roles": ["AI Engineer", "ML Engineer", "Deep Learning Researcher"],
+  "projects": ["Custom Image Classifier & Neural Network Engine"]
+}
