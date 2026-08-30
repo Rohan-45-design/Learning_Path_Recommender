@@ -1,0 +1,11 @@
+{
+  "course_id": "CS_PY_101",
+  "title": "Python Programming & Data Foundations",
+  "description": "Master core Python syntax, object-oriented programming, data manipulation with Pandas, and numerical computing with NumPy.",
+  "skills_covered": ["Python", "Pandas", "NumPy", "Data Processing"],
+  "prerequisites": [],
+  "difficulty": "Beginner",
+  "duration_hours": 20,
+  "career_roles": ["AI Engineer", "ML Engineer", "Data Scientist", "Software Engineer"],
+  "projects": ["Data Processing & Exploratory Analysis Pipeline"]
+}

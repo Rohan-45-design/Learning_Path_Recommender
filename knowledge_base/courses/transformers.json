@@ -1,0 +1,11 @@
+{
+  "course_id": "CS_TR_401",
+  "title": "Transformers & Attention Mechanisms",
+  "description": "Understand self-attention, scaled dot-product attention, multi-head attention, encoder-decoder architectures, BERT, GPT, and modern transformer models.",
+  "skills_covered": ["Transformers", "Attention Mechanisms", "BERT", "GPT", "NLP"],
+  "prerequisites": ["Deep Learning", "Python"],
+  "difficulty": "Advanced",
+  "duration_hours": 40,
+  "career_roles": ["GenAI Engineer", "AI Architect", "NLP Scientist"],
+  "projects": ["Build a Transformer Encoder from Scratch"]
+}
