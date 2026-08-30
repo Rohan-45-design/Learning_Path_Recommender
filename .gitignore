@@ -16,7 +16,7 @@ chroma_db_store/
 .env
 .env.local
 *.key
-.venv
+.venv/
 env/
 venv/
 
