@@ -10,7 +10,7 @@ class CourseRetriever:
         self.client = chromadb.PersistentClient(path=db_path)
         self.embedding_model = EmbeddingModel()
         self.adapter = CustomEmbeddingAdapter(self.embedding_model)
-        self.collection = self.client.get_collection(
+        self.collection = self.client.get_or_create_collection(
             name=collection_name,
             embedding_function=self.adapter
         )

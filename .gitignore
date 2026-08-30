@@ -4,16 +4,21 @@ __pycache__/
 *$py.class
 .pytest_cache/
 
-# Chroma vector database binaries
+# Databases & local stores
+courses.db
+*.db
+*.sqlite3
 chroma_db/
 chroma_db_store/
-*.sqlite3
 *.bin
 
 # Environment & API keys
 .env
 .env.local
 *.key
+.venv/
+env/
+venv/
 
 # OS / Editor files
 .DS_Store
