@@ -1,0 +1,22 @@
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Chroma vector database binaries
+chroma_db/
+chroma_db_store/
+*.sqlite3
+*.bin
+
+# Environment & API keys
+.env
+.env.local
+*.key
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,38 @@
+[
+  {
+    "id_student": "student_123",
+    "code_module": "AAA",
+    "code_presentation": "2013J",
+    "highest_education": "HE Qualification",
+    "vle_clicks": 1420,
+    "assessment_score": 88.5,
+    "mastered_skills": ["Python", "Machine Learning"],
+    "goal": "GenAI Engineer",
+    "level": "Intermediate",
+    "skill_gaps": ["Deep Learning", "Transformers", "LLM", "RAG"]
+  },
+  {
+    "id_student": "student_456",
+    "code_module": "BBB",
+    "code_presentation": "2014J",
+    "highest_education": "A Level",
+    "vle_clicks": 650,
+    "assessment_score": 72.0,
+    "mastered_skills": ["Python"],
+    "goal": "AI Engineer",
+    "level": "Beginner",
+    "skill_gaps": ["Linear Algebra", "Machine Learning", "Deep Learning"]
+  },
+  {
+    "id_student": "student_789",
+    "code_module": "CCC",
+    "code_presentation": "2014B",
+    "highest_education": "Post Graduate",
+    "vle_clicks": 2100,
+    "assessment_score": 94.0,
+    "mastered_skills": ["Python", "Machine Learning", "Deep Learning", "Transformers"],
+    "goal": "GenAI Engineer",
+    "level": "Advanced",
+    "skill_gaps": ["LLM", "RAG"]
+  }
+]

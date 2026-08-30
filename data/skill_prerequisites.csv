@@ -1,0 +1,11 @@
+skill,prerequisite
+machine_learning,python
+deep_learning,machine_learning
+nlp,machine_learning
+computer_vision,machine_learning
+transformers,deep_learning
+llm,transformers
+generative_ai,llm
+rag,llm
+ai_agents,llm
+mlops,machine_learning

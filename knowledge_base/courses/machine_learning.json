@@ -1,0 +1,11 @@
+{
+  "course_id": "CS_ML_201",
+  "title": "Machine Learning Fundamentals & Scikit-Learn",
+  "description": "Learn classical supervised and unsupervised learning algorithms including linear regression, logistic regression, decision trees, random forests, clustering, and cross-validation.",
+  "skills_covered": ["Machine Learning", "Supervised Learning", "Scikit-Learn", "Model Evaluation"],
+  "prerequisites": ["Python", "Linear Algebra"],
+  "difficulty": "Intermediate",
+  "duration_hours": 30,
+  "career_roles": ["ML Engineer", "Data Scientist", "AI Engineer"],
+  "projects": ["Customer Churn Prediction Model"]
+}
