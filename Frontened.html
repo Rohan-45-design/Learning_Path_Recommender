@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PathAI — Learning Path Recommender</title>
+<style>
+:root{
+  --bg:#0b0f19; --bg2:#111827; --card:#151b2b; --card2:#1b2337;
+  --line:#242e45; --line2:#2f3b56;
+  --txt:#e6ebf5; --mut:#8e9bb5; --dim:#64718c;
+  --acc:#6d8cff; --acc2:#4f6ff0;
+  --ok:#34d399; --warn:#fbbf24; --lock:#7c8598; --bad:#f87171;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:radial-gradient(1200px 600px at 15% -10%,#1a2440 0%,transparent 60%),
+             radial-gradient(900px 500px at 95% 0%,#1d2136 0%,transparent 55%),
+             var(--bg);
+  color:var(--txt);
+  font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+  min-height:100vh;
+}
+a{color:var(--acc)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 80px}
+
+/* ---------- header ---------- */
+header{
+  position:sticky;top:0;z-index:40;backdrop-filter:blur(12px);
+  background:rgba(11,15,25,.82);border-bottom:1px solid var(--line);
+}
+.hd{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.02em;font-size:17px}
+.logo .dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--acc),#a78bfa);
+  display:grid;place-items:center;font-size:13px;color:#0b0f19;font-weight:800}
+.spacer{flex:1}
+.api{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mut)}
+.api input{
+  background:var(--card);border:1px solid var(--line);color:var(--txt);
+  border-radius:8px;padding:5px 9px;font-size:12px;width:190px;font-family:ui-monospace,monospace;
+}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;padding:4px 9px;border-radius:999px;
+  border:1px solid var(--line2);color:var(--mut);background:var(--card)}
+.pill .led{width:7px;height:7px;border-radius:50%;background:var(--dim)}
+.pill.on .led{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.pill.off .led{background:var(--bad)}
+.ghost{background:transparent;border:1px solid var(--line2);color:var(--mut);border-radius:9px;
+  padding:6px 12px;font-size:13px;cursor:pointer}
+.ghost:hover{color:var(--txt);border-color:var(--acc)}
+
+/* ---------- view A ---------- */
+.hero{text-align:center;padding:54px 0 26px}
+.hero h1{font-size:38px;line-height:1.15;margin:0 0 10px;letter-spacing:-.03em;font-weight:800}
+.hero h1 span{background:linear-gradient(90deg,var(--acc),#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mut);margin:0;font-size:15.5px}
+
+.panel{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);
+  border-radius:20px;padding:28px;max-width:760px;margin:0 auto;box-shadow:0 18px 50px -25px #000}
+.field{margin-bottom:22px}
+.field:last-child{margin-bottom:0}
+label.lb{display:block;font-size:13px;font-weight:600;color:var(--txt);margin-bottom:3px}
+.hint{font-size:12.5px;color:var(--dim);margin-bottom:10px}
+textarea,input[type=text]{
+  width:100%;background:var(--bg);border:1px solid var(--line2);border-radius:12px;
+  color:var(--txt);padding:12px 14px;font:inherit;font-size:14.5px;resize:vertical;outline:none;
+}
+textarea:focus,input[type=text]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(109,140,255,.13)}
+textarea::placeholder,input::placeholder{color:var(--dim)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:7px 13px;border-radius:999px;border:1px solid var(--line2);background:var(--bg);
+  color:var(--mut);font-size:13px;cursor:pointer;user-select:none;transition:.14s}
+.chip:hover{border-color:var(--acc);color:var(--txt)}
+.chip.sel{background:rgba(109,140,255,.14);border-color:var(--acc);color:#cfd9ff;font-weight:600}
+
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.seg button{padding:12px 8px;border-radius:12px;border:1px solid var(--line2);background:var(--bg);
+  color:var(--mut);cursor:pointer;font:inherit;font-size:13.5px;text-align:center;transition:.14s}
+.seg button b{display:block;font-size:14px;color:var(--txt);margin-bottom:2px}
+.seg button small{font-size:11.5px;color:var(--dim)}
+.seg button.sel{border-color:var(--acc);background:rgba(109,140,255,.12)}
+.seg button.sel b{color:#cfd9ff}
+
+.slider{display:flex;align-items:center;gap:14px}
+input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:6px;border-radius:99px;
+  background:linear-gradient(90deg,var(--acc) var(--pct,30%),var(--line2) var(--pct,30%));outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+  background:#fff;border:4px solid var(--acc2);cursor:pointer;box-shadow:0 2px 8px #0008}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;
+  border:4px solid var(--acc2);cursor:pointer}
+.hrs{min-width:96px;text-align:right;font-weight:700;font-size:20px;letter-spacing:-.02em}
+.hrs small{display:block;font-size:11px;color:var(--dim);font-weight:500;letter-spacing:0}
+
+.cta{width:100%;margin-top:26px;padding:15px;border-radius:13px;border:0;cursor:pointer;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;font:inherit;font-size:15.5px;font-weight:700;
+  box-shadow:0 10px 28px -10px var(--acc2);transition:.15s}
+.cta:hover{transform:translateY(-1px);filter:brightness(1.07)}
+.cta:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+.err{margin:18px auto 0;max-width:760px;background:rgba(248,113,113,.09);border:1px solid rgba(248,113,113,.35);
+  color:#fecaca;border-radius:12px;padding:13px 16px;font-size:13.5px}
+.err code{background:#0006;padding:1px 5px;border-radius:4px;font-size:12.5px}
+
+/* ---------- loading ---------- */
+.load{max-width:760px;margin:34px auto;text-align:center}
+.bars{display:flex;flex-direction:column;gap:10px;margin-top:22px;text-align:left}
+.step{display:flex;align-items:center;gap:11px;font-size:13.5px;color:var(--dim);
+  padding:11px 15px;border:1px solid var(--line);border-radius:11px;background:var(--card)}
+.step.act{color:var(--txt);border-color:var(--acc)}
+.step.done{color:var(--ok)}
+.sp{width:15px;height:15px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--acc);
+  animation:sp .7s linear infinite;flex:none}
+.step.done .sp{border:none;animation:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---------- view B ---------- */
+.sec{margin-top:36px}
+.sech{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+.sech h2{font-size:19px;margin:0;letter-spacing:-.02em;font-weight:700}
+.sech span{font-size:12.5px;color:var(--dim)}
+
+.topbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:26px}
+.tag{display:inline-flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--line);
+  border-radius:10px;padding:8px 13px;font-size:13px;color:var(--mut)}
+.tag b{color:var(--txt)}
+
+.mentor{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);
+  border-radius:var(--r);padding:22px 24px;position:relative;overflow:hidden}
+.mentor::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--acc),#a78bfa)}
+.mentor .md{font-size:14.5px;color:#d5dcec}
+.md p{margin:0 0 11px}
+.md ul{margin:0 0 11px;padding-left:20px}
+.md li{margin-bottom:5px}
+.md strong{color:#fff}
+.conf{display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.confbar{flex:1;max-width:190px;height:6px;border-radius:99px;background:var(--line2);overflow:hidden}
+.confbar i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),#6ee7b7)}
+.confl{font-size:12px;color:var(--dim)}
+
+/* roadmap */
+.road{display:flex;gap:0;overflow-x:auto;padding:6px 2px 16px;scrollbar-width:thin}
+.road::-webkit-scrollbar{height:7px}
+.road::-webkit-scrollbar-thumb{background:var(--line2);border-radius:99px}
+.node{flex:none;width:225px;position:relative}
+.conn{flex:none;width:34px;display:flex;align-items:center;justify-content:center;padding-top:52px}
+.conn svg{opacity:.5}
+.ncard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:15px;height:100%;
+  cursor:pointer;transition:.16s;position:relative}
+.ncard:hover{transform:translateY(-2px);border-color:var(--line2)}
+.ncard .st{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;margin-bottom:9px;
+  display:inline-flex;align-items:center;gap:5px}
+.ncard h4{margin:0 0 6px;font-size:14.5px;line-height:1.35;letter-spacing:-.01em}
+.ncard .sk{font-size:11.5px;color:var(--dim);font-family:ui-monospace,monospace}
+.ncard .pr{margin-top:11px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--dim)}
+.stage{position:absolute;top:-9px;right:13px;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;
+  font-size:11.5px;font-weight:800;background:var(--bg2);border:1px solid var(--line2);color:var(--mut)}
+.n-next .ncard{border-color:var(--acc);background:linear-gradient(180deg,rgba(109,140,255,.13),var(--card));
+  box-shadow:0 0 0 1px rgba(109,140,255,.25),0 14px 34px -18px var(--acc2)}
+.n-next .st{color:var(--acc)}
+.n-next .stage{background:var(--acc2);border-color:var(--acc);color:#fff}
+.n-ready .ncard{border-color:rgba(52,211,153,.4)}
+.n-ready .st{color:var(--ok)}
+.n-locked .ncard{opacity:.62;background:var(--bg2)}
+.n-locked .st{color:var(--lock)}
+.n-done .ncard{border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.06)}
+.n-done .st{color:var(--ok)}
+.mast{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.mast .m{font-size:12px;padding:5px 11px;border-radius:999px;background:rgba(52,211,153,.1);
+  border:1px solid rgba(52,211,153,.28);color:#8ef0c4}
+
+/* course cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.cc{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:19px;
+  display:flex;flex-direction:column;transition:.16s}
+.cc:hover{border-color:var(--line2);transform:translateY(-2px)}
+.cc .rank{font-size:11px;font-weight:800;color:var(--acc);letter-spacing:.08em;margin-bottom:8px}
+.cc h3{margin:0 0 6px;font-size:16px;line-height:1.32;letter-spacing:-.015em}
+.cc .uni{font-size:12.5px;color:var(--mut);margin-bottom:12px}
+.cc .desc{font-size:13.2px;color:var(--mut);margin-bottom:13px;line-height:1.5}
+.badges{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px}
+.b{font-size:11.5px;padding:4px 9px;border-radius:7px;border:1px solid var(--line2);color:var(--mut);
+  display:inline-flex;align-items:center;gap:5px}
+.b.diff-Beginner{border-color:rgba(52,211,153,.4);color:#8ef0c4;background:rgba(52,211,153,.08)}
+.b.diff-Conversant{border-color:rgba(96,165,250,.4);color:#bfd6ff;background:rgba(96,165,250,.08)}
+.b.diff-Intermediate{border-color:rgba(251,191,36,.4);color:#fde08a;background:rgba(251,191,36,.08)}
+.b.diff-Advanced{border-color:rgba(248,113,113,.4);color:#fecaca;background:rgba(248,113,113,.08)}
+.b.score{border-color:rgba(167,139,250,.4);color:#d8ccff;background:rgba(167,139,250,.08);font-family:ui-monospace,monospace}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tg{font-size:11px;padding:3px 8px;border-radius:6px;background:var(--card2);color:#9fb0d0;
+  border:1px solid var(--line);font-family:ui-monospace,monospace}
+.why{background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:14px}
+.why .t{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+.why ul{margin:0;padding-left:16px;font-size:12.5px;color:var(--mut)}
+.why li{margin-bottom:4px}
+.cc .foot{margin-top:auto;display:flex;gap:8px}
+.enroll{flex:1;text-align:center;padding:10px;border-radius:10px;text-decoration:none;font-size:13.5px;font-weight:600;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;transition:.14s}
+.enroll:hover{filter:brightness(1.1)}
+.done{padding:10px 13px;border-radius:10px;border:1px solid var(--line2);background:transparent;color:var(--mut);
+  font:inherit;font-size:13px;cursor:pointer}
+.done:hover{border-color:var(--ok);color:var(--ok)}
+
+.srcs{display:flex;flex-wrap:wrap;gap:8px}
+.src{font-size:12.5px;padding:7px 12px;border-radius:9px;background:var(--card);border:1px solid var(--line);
+  color:var(--mut);text-decoration:none}
+.src:hover{border-color:var(--acc);color:var(--txt)}
+.empty{color:var(--dim);font-size:13.5px;padding:26px;text-align:center;border:1px dashed var(--line2);border-radius:var(--r)}
+
+/* modal */
+.mask{position:fixed;inset:0;background:#000a;backdrop-filter:blur(4px);display:none;
+  align-items:center;justify-content:center;z-index:60;padding:20px}
+.mask.on{display:flex}
+.modal{background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:26px;max-width:500px;width:100%;
+  box-shadow:0 30px 70px -20px #000}
+.modal h3{margin:0 0 4px;font-size:19px;letter-spacing:-.02em}
+.modal .stt{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;margin-bottom:14px}
+.modal p{color:var(--mut);font-size:14px;margin:0 0 16px;line-height:1.6}
+.plist{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.plist .p{font-size:12px;padding:5px 10px;border-radius:7px;font-family:ui-monospace,monospace}
+.plist .p.miss{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.35);color:#fecaca}
+.plist .p.have{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);color:#8ef0c4}
+.modal .cta{margin-top:0}
+
+@media(max-width:640px){
+  .hero h1{font-size:28px}
+  .panel{padding:20px}
+  .seg{grid-template-columns:1fr}
+  .hd{flex-wrap:wrap}
+  .api input{width:130px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd">
+    <div class="logo"><span class="dot">P</span> PathAI</div>
+    <div class="spacer"></div>
+    <div class="api">
+      <span>API</span>
+      <input id="apiBase" type="text" value="http://localhost:8000" spellcheck="false">
+      <span class="pill" id="health"><span class="led"></span><span id="healthTxt">checking…</span></span>
+    </div>
+    <button class="ghost" id="btnBack" style="display:none">← New search</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ VIEW A ============ -->
+  <section id="viewA">
+    <div class="hero">
+      <h1>What do you want to <span>learn</span>?</h1>
+      <p>Tell PathAI your goal — get a prerequisite-ordered roadmap and grounded course picks.</p>
+    </div>
+
+    <div class="panel">
+      <div class="field">
+        <label class="lb" for="goalText">Your learning goal</label>
+        <div class="hint">Free-form. e.g. "I want to build production RAG systems and become a GenAI engineer."</div>
+        <textarea id="goalText" rows="3" placeholder="What do you want to learn?"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="lb">Career track</label>
+        <div class="hint">Drives the target skill sequence in the backend goal graph.</div>
+        <div class="chips" id="goalChips"></div>
+      </div>
+
+      <div class="field">
+        <label class="lb">Skills you already have</label>
+        <div class="hint">Click to toggle. These are subtracted from the roadmap.</div>
+        <div class="chips" id="skillChips"></div>
+        <input type="text" id="skillOther" placeholder="Other skills, comma separated…" style="margin-top:10px">
+      </div>
+
+      <div class="field">
+        <label class="lb">Current skill level</label>
+        <div class="seg" id="levelSeg"></div>
+      </div>
+
+      <div class="field">
+        <label class="lb">Time commitment</label>
+        <div class="hint">Used to pace milestone estimates.</div>
+        <div class="slider">
+          <input type="range" id="hrs" min="1" max="40" value="10">
+          <div class="hrs"><span id="hrsVal">10</span><small>hours / week</small></div>
+        </div>
+      </div>
+
+      <button class="cta" id="btnGo">Generate my learning path</button>
+    </div>
+    <div id="errA"></div>
+  </section>
+
+  <!-- ============ LOADING ============ -->
+  <section id="viewL" style="display:none">
+    <div class="load">
+      <h2 style="letter-spacing:-.02em">Building your path…</h2>
+      <div class="bars" id="steps"></div>
+    </div>
+  </section>
+
+  <!-- ============ VIEW B ============ -->
+  <section id="viewB" style="display:none">
+    <div class="topbar" id="profBar"></div>
+
+    <div class="sec">
+      <div class="sech"><h2>Your mentor</h2><span>grounded in the retrieved course corpus</span></div>
+      <div class="mentor">
+        <div class="md" id="answer"></div>
+        <div class="conf">
+          <span class="confl">Retrieval confidence</span>
+          <span class="confbar"><i id="confBar" style="width:0%"></i></span>
+          <span class="confl" id="confVal">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sech"><h2>Roadmap</h2><span id="roadMeta"></span></div>
+      <div class="mast" id="mastered"></div>
+      <div class="road" id="road"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sech"><h2>Recommended courses</h2><span id="recMeta"></span></div>
+      <div class="grid" id="recs"></div>
+    </div>
+
+    <div class="sec" id="srcSec">
+      <div class="sech"><h2>Sources</h2><span>cited by the generator</span></div>
+      <div class="srcs" id="srcs"></div>
+    </div>
+  </section>
+</div>
+
+<div class="mask" id="mask">
+  <div class="modal">
+    <div class="stt" id="mStatus"></div>
+    <h3 id="mTitle"></h3>
+    <p id="mBody"></p>
+    <div class="plist" id="mPre"></div>
+    <button class="cta" id="mClose">Got it</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   PathAI frontend — talks to the FastAPI backend in this repo.
+   Endpoints used:
+     GET  /rag/health
+     POST /rag/chat      { query, learner_id, learner_profile:{goal,skills,level}, skill_gaps }
+     POST /rag/feedback  { learner_profile, course_completed, completed_skills, feedback_text }
+   NOTE: the live ChatResponse model drops `next_skill` and `why_not_explanation`,
+   so both are derived client-side from `learning_path[]` (which carries
+   status / prerequisites_met / prerequisites_required per milestone).
+   ============================================================ */
+
+const GOALS = ["GenAI Engineer","AI Engineer","ML Engineer","Data Scientist",
+               "NLP Engineer","Computer Vision Engineer","Software Engineer"];
+
+const SKILLS = ["Python","Machine Learning","Deep Learning","Neural Networks","Statistics",
+                "SQL","NLP","Computer Vision","Transformers","LLM","Generative AI","RAG",
+                "FastAPI","Docker","Cloud Computing","MLOps"];
+
+const LEVELS = [
+  {v:"Beginner",     d:"New to the field"},
+  {v:"Intermediate", d:"Built a few things"},
+  {v:"Advanced",     d:"Shipping in production"}
+];
+
+// difficulty -> nominal course hours, used with hrs/week for the duration badge
+const HOURS = {Beginner:20, Conversant:28, Intermediate:40, Advanced:60};
+
+const state = {
+  goal: "GenAI Engineer",
+  skills: new Set(["Python"]),
+  level: "Intermediate",
+  hrs: 10,
+  data: null
+};
+
+const $  = id => document.getElementById(id);
+const el = (t,c,h) => { const n=document.createElement(t); if(c)n.className=c; if(h!=null)n.innerHTML=h; return n; };
+const esc = s => String(s??"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const api = () => $("apiBase").value.trim().replace(/\/+$/,"");
+const titleize = s => String(s??"").replace(/_/g," ").replace(/\b\w/g,m=>m.toUpperCase());
+
+/* ---------------- build view A ---------------- */
+GOALS.forEach(g=>{
+  const c = el("div","chip"+(g===state.goal?" sel":""),esc(g));
+  c.onclick = ()=>{ state.goal=g; [...$("goalChips").children].forEach(x=>x.classList.remove("sel")); c.classList.add("sel"); };
+  $("goalChips").appendChild(c);
+});
+
+SKILLS.forEach(s=>{
+  const c = el("div","chip"+(state.skills.has(s)?" sel":""),esc(s));
+  c.onclick = ()=>{ state.skills.has(s)?state.skills.delete(s):state.skills.add(s); c.classList.toggle("sel"); };
+  $("skillChips").appendChild(c);
+});
+
+LEVELS.forEach(l=>{
+  const b = el("button",(l.v===state.level?"sel":""),`<b>${l.v}</b><small>${l.d}</small>`);
+  b.onclick = ()=>{ state.level=l.v; [...$("levelSeg").children].forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); };
+  $("levelSeg").appendChild(b);
+});
+
+const hrsIn = $("hrs");
+function paintSlider(){
+  state.hrs = +hrsIn.value;
+  $("hrsVal").textContent = state.hrs;
+  hrsIn.style.setProperty("--pct", ((state.hrs-1)/39*100)+"%");
+}
+hrsIn.oninput = paintSlider; paintSlider();
+
+/* ---------------- health ---------------- */
+async function health(){
+  const p=$("health"), t=$("healthTxt");
+  p.className="pill"; t.textContent="checking…";
+  try{
+    const r = await fetch(api()+"/rag/health");
+    if(!r.ok) throw 0;
+    const j = await r.json();
+    p.className="pill on"; t.textContent = j.service || "online";
+  }catch(e){ p.className="pill off"; t.textContent="offline"; }
+}
+$("apiBase").onchange = health;
+health();
+
+/* ---------------- markdown-lite ---------------- */
+function md(src){
+  const lines = String(src||"").split("\n");
+  let out="", ul=false;
+  const inline = s => esc(s)
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")
+    .replace(/(^|[^*])\*([^*]+)\*/g,"$1<em>$2</em>")
+    .replace(/`([^`]+)`/g,"<code>$1</code>");
+  for(let raw of lines){
+    const l = raw.trim();
+    if(/^[-*]\s+/.test(l)){ if(!ul){out+="<ul>";ul=true;} out += "<li>"+inline(l.replace(/^[-*]\s+/,""))+"</li>"; continue; }
+    if(ul){out+="</ul>";ul=false;}
+    if(l) out += "<p>"+inline(l)+"</p>";
+  }
+  if(ul) out+="</ul>";
+  return out || "<p>—</p>";
+}
+
+/* ---------------- request ---------------- */
+function profile(){
+  const extra = $("skillOther").value.split(",").map(s=>s.trim()).filter(Boolean);
+  return { goal: state.goal, skills: [...state.skills, ...extra], level: state.level };
+}
+
+const STEPS = ["Analysing skill gaps against goal graph",
+               "Retrieving candidates from ChromaDB",
+               "Learner-aware reranking + prerequisite check",
+               "Generating grounded mentor response"];
+
+function showSteps(){
+  const box=$("steps"); box.innerHTML="";
+  STEPS.forEach(s=>box.appendChild(el("div","step",`<span class="sp"></span><span>${s}</span>`)));
+  let i=0;
+  const t=setInterval(()=>{
+    const ch=[...box.children];
+    if(i>0){ ch[i-1].className="step done"; ch[i-1].querySelector(".sp").outerHTML='<span class="sp">✓</span>'; }
+    if(i<ch.length) ch[i].className="step act";
+    i++; if(i>ch.length) clearInterval(t);
+  }, 900);
+  return ()=>clearInterval(t);
+}
+
+$("btnGo").onclick = run;
+$("btnBack").onclick = ()=>{ $("viewA").style.display=""; $("viewB").style.display="none"; $("btnBack").style.display="none"; };
+
+async function run(){
+  const q = $("goalText").value.trim() || `I want to become a ${state.goal}. What should I learn next?`;
+  $("errA").innerHTML="";
+  $("viewA").style.display="none"; $("viewL").style.display=""; $("viewB").style.display="none";
+  const stop = showSteps();
+
+  try{
+    const r = await fetch(api()+"/rag/chat",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ query:q, learner_id:"web_user", learner_profile: profile() })
+    });
+    const txt = await r.text();
+    if(!r.ok) throw new Error(`HTTP ${r.status} — ${txt.slice(0,300)}`);
+    state.data = normalize(JSON.parse(txt));
+    stop();
+    $("viewL").style.display="none"; $("viewB").style.display=""; $("btnBack").style.display="";
+    render();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }catch(e){
+    stop();
+    $("viewL").style.display="none"; $("viewA").style.display="";
+    $("errA").innerHTML =
+      `<div class="err"><b>Could not reach the backend.</b><br>${esc(e.message)}<br><br>
+       Start it with <code>uvicorn main:app --reload</code> (build the index first:
+       <code>python build_index.py</code>), then confirm the API URL above.</div>`;
+  }
+}
+
+/* Tolerant normalization: the pipeline and the route model disagree on a few
+   field names, so accept either shape rather than hard-failing. */
+function normalize(j){
+  const path = (j.learning_path||[]).map((m,i)=>({
+    stage: m.stage ?? i+1,
+    skill: m.skill ?? m.name ?? "",
+    display_name: m.display_name ?? titleize(m.skill ?? m.name ?? ""),
+    status: (m.status ?? "locked").toLowerCase(),
+    prerequisites_met: m.prerequisites_met ?? (m.status==="next"||m.status==="ready"),
+    prerequisites_required: m.prerequisites_required ?? m.prerequisites ?? []
+  }));
+  const recs = (j.recommendations||j.candidates||[]).map(c=>({
+    name: c.course_name ?? c.course ?? c.title ?? "Untitled course",
+    university: c.university ?? "",
+    difficulty: c.difficulty ?? "",
+    rating: c.rating ?? null,                 // present only if backend is patched
+    description: c.description ?? c.course_description ?? "",
+    skills: c.skills ?? c.skill ?? "",
+    score: c.score ?? c.relevance ?? 0,
+    prereq_violations: c.prereq_violations ?? 0,
+    url: c.url ?? c.course_url ?? "",
+    why: c.why_recommended ?? []
+  }));
+  return {
+    answer: j.answer || "",
+    confidence: typeof j.confidence==="number" ? j.confidence : 0,
+    sources: j.sources || [],
+    skill_gaps: j.skill_gaps || [],
+    // /rag/chat's response_model strips next_skill — derive it from the path
+    next_skill: j.next_skill || (path.find(m=>m.status==="next")||path[0]||{}).skill || null,
+    learning_path: path,
+    recommendations: recs
+  };
+}
+
+/* ---------------- render view B ---------------- */
+function render(){
+  const d = state.data;
+
+  $("profBar").innerHTML =
+    `<span class="tag">🎯 Goal <b>${esc(state.goal)}</b></span>
+     <span class="tag">📊 Level <b>${esc(state.level)}</b></span>
+     <span class="tag">⏱ <b>${state.hrs}</b> hrs/week</span>
+     <span class="tag">✅ <b>${state.skills.size}</b> skills held</span>
+     <span class="tag">🧩 <b>${d.learning_path.length}</b> milestones left</span>` +
+    (d.next_skill ? `<span class="tag" style="border-color:var(--acc);color:#cfd9ff">➡️ Next <b>${esc(titleize(d.next_skill))}</b></span>` : "");
+
+  $("answer").innerHTML = md(d.answer);
+  const pc = Math.round(d.confidence*100);
+  $("confBar").style.width = pc+"%";
+  $("confVal").textContent = d.confidence.toFixed(2);
+
+  /* --- roadmap --- */
+  const road = $("road"); road.innerHTML="";
+  $("roadMeta").textContent = d.learning_path.length
+    ? `${d.learning_path.length} milestones · prerequisite-ordered · click any card for the "why not yet?" reasoning`
+    : "";
+
+  const mast = $("mastered"); mast.innerHTML="";
+  [...state.skills].forEach(s=>mast.appendChild(el("span","m","✓ "+esc(s))));
+
+  if(!d.learning_path.length){
+    road.appendChild(el("div","empty","No gaps left — every skill for this goal is already in your profile. Pick a more advanced track."));
+  }
+  d.learning_path.forEach((m,i)=>{
+    if(i) road.appendChild(el("div","conn",
+      `<svg width="30" height="12"><path d="M0 6 H22" stroke="#2f3b56" stroke-width="2" stroke-dasharray="4 3"/><path d="M20 2 l6 4 -6 4" fill="none" stroke="#2f3b56" stroke-width="2"/></svg>`));
+
+    const label = m.status==="next" ? "▶ Next up" : m.status==="ready" ? "● Ready" : "🔒 Locked";
+    const need  = missingPrereqs(m);
+    const weeks = Math.max(1, Math.ceil(HOURS.Intermediate / state.hrs));
+
+    const n = el("div","node n-"+m.status);
+    n.innerHTML =
+      `<div class="ncard">
+         <div class="stage">${m.stage}</div>
+         <div class="st">${label}</div>
+         <h4>${esc(m.display_name)}</h4>
+         <div class="sk">${esc(m.skill)}</div>
+         <div class="pr">${need.length
+            ? "Needs first: "+need.map(p=>esc(titleize(p))).join(", ")
+            : `~${weeks} week${weeks>1?"s":""} at ${state.hrs} hrs/wk`}</div>
+       </div>`;
+    n.querySelector(".ncard").onclick = ()=>whyNot(m);
+    road.appendChild(n);
+  });
+
+  /* --- course cards --- */
+  const g = $("recs"); g.innerHTML="";
+  $("recMeta").textContent = d.recommendations.length
+    ? `top ${d.recommendations.length}, reranked for ${titleize(d.next_skill||state.goal)}`
+    : "";
+  if(!d.recommendations.length){
+    g.appendChild(el("div","empty","No courses cleared the retrieval threshold. Try rephrasing the goal, or confirm the Chroma index was built."));
+  }
+  d.recommendations.forEach((c,i)=>g.appendChild(courseCard(c,i)));
+
+  /* --- sources --- */
+  const s = $("srcs"); s.innerHTML="";
+  $("srcSec").style.display = d.sources.length ? "" : "none";
+  d.sources.forEach(x=>{
+    const label = esc(x.course||x.title||"Source") + (x.university?` · ${esc(x.university)}`:"");
+    if(x.url){ const a=el("a","src",label); a.href=x.url; a.target="_blank"; a.rel="noopener"; s.appendChild(a); }
+    else s.appendChild(el("span","src",label));
+  });
+}
+
+/* The backend is the authority on readiness (`prerequisites_met`); the local
+   skill set is only used to split "required" into met / unmet for display. */
+function missingPrereqs(m){
+  if(m.prerequisites_met) return [];
+  const req = m.prerequisites_required || [];
+  const unmet = req.filter(p=>!hasSkill(p));
+  return unmet.length ? unmet : req;
+}
+
+function hasSkill(norm){
+  const n = String(norm).toLowerCase().replace(/[^a-z0-9]+/g,"_");
+  return [...state.skills].some(s=>s.toLowerCase().replace(/[^a-z0-9]+/g,"_")===n);
+}
+
+function splitSkills(raw){
+  if(Array.isArray(raw)) return raw;
+  return String(raw||"").split(/\s{2,}|[|,;]/).map(s=>s.trim()).filter(Boolean);
+}
+
+function courseCard(c,i){
+  const diff  = c.difficulty || "Intermediate";
+  const hours = HOURS[diff] ?? 40;
+  const weeks = Math.max(1, Math.ceil(hours/state.hrs));
+  const tags  = splitSkills(c.skills).slice(0,6);
+
+  const n = el("div","cc");
+  n.innerHTML =
+    `<div class="rank">#${i+1} RECOMMENDED</div>
+     <h3>${esc(c.name)}</h3>
+     <div class="uni">${esc(c.university||"—")}</div>
+     ${c.description ? `<div class="desc">${esc(c.description.slice(0,190))}${c.description.length>190?"…":""}</div>` : ""}
+     <div class="badges">
+       <span class="b diff-${esc(diff)}">${esc(diff)}</span>
+       <span class="b">⏱ ~${hours}h · ${weeks} wk${weeks>1?"s":""}</span>
+       ${c.rating ? `<span class="b">★ ${Number(c.rating).toFixed(1)}</span>` : ""}
+       <span class="b score">score ${Number(c.score).toFixed(3)}</span>
+       ${c.prereq_violations>0 ? `<span class="b" style="border-color:rgba(251,191,36,.4);color:#fde08a">⚠ ${c.prereq_violations} prereq gap${c.prereq_violations>1?"s":""}</span>` : ""}
+     </div>
+     ${tags.length ? `<div class="tags">${tags.map(t=>`<span class="tg">${esc(t)}</span>`).join("")}</div>` : ""}
+     ${c.why.length ? `<div class="why"><div class="t">Why this course</div><ul>${c.why.map(w=>`<li>${esc(w)}</li>`).join("")}</ul></div>` : ""}
+     <div class="foot">
+       ${c.url ? `<a class="enroll" href="${esc(c.url)}" target="_blank" rel="noopener">Enroll on Coursera ↗</a>`
+                : `<span class="enroll" style="opacity:.45">No link available</span>`}
+       <button class="done" title="Mark completed — updates your profile via /rag/feedback">✓ Done</button>
+     </div>`;
+  n.querySelector(".done").onclick = ev => complete(ev.target, c);
+  return n;
+}
+
+/* ---------------- explainability (client-side "why not?") ---------------- */
+function whyNot(m){
+  const need = missingPrereqs(m);
+  const have = (m.prerequisites_required||[]).filter(p=>!need.includes(p));
+  const next = state.data.next_skill;
+
+  let stt, col, body;
+  if(m.status==="next"){
+    stt="Next up"; col="var(--acc)";
+    body = `This is your immediate next step — every prerequisite is satisfied, and it is the earliest unmet skill on the ${esc(state.goal)} track. The courses below were reranked to target it.`;
+  } else if(need.length){
+    stt="Prerequisite missing"; col="var(--warn)";
+    body = `<strong>${esc(m.display_name)}</strong> was not selected as your next step because prerequisite skill(s) <strong>${need.map(titleize).map(esc).join(", ")}</strong> are required first. Your current recommended next step is <strong>${esc(titleize(next||"—"))}</strong>.`;
+  } else {
+    stt="Ready, but later"; col="var(--ok)";
+    body = `Prerequisites for <strong>${esc(m.display_name)}</strong> are satisfied, so it is unlocked — but it sits at stage ${m.stage} in the goal sequence, behind <strong>${esc(titleize(next||"—"))}</strong>. Finish the earlier milestone and this moves up.`;
+  }
+
+  $("mStatus").textContent = stt;
+  $("mStatus").style.color = col;
+  $("mTitle").textContent = m.display_name;
+  $("mBody").innerHTML = body;
+  const pl = $("mPre"); pl.innerHTML="";
+  have.forEach(p=>pl.appendChild(el("span","p have","✓ "+esc(p))));
+  need.forEach(p=>pl.appendChild(el("span","p miss","✗ "+esc(p))));
+  $("mask").classList.add("on");
+}
+$("mClose").onclick = ()=>$("mask").classList.remove("on");
+$("mask").onclick = e=>{ if(e.target===$("mask")) $("mask").classList.remove("on"); };
+
+/* ---------------- adaptive feedback loop ---------------- */
+async function complete(btn, course){
+  const skill = state.data.next_skill;
+  btn.disabled = true; btn.textContent = "Updating…";
+  try{
+    const r = await fetch(api()+"/rag/feedback",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        learner_profile: profile(),
+        course_completed: true,
+        completed_skills: skill ? [skill] : splitSkills(course.skills).slice(0,1)
+      })
+    });
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const j = await r.json();
+    const up = j.updated_profile || {};
+    (up.current_skills || up.skills || []).forEach(s=>state.skills.add(titleize(s)));
+    if(up.level) state.level = up.level;
+    // reflect the updated profile in view A's chips, then re-plan
+    [...$("skillChips").children].forEach(c=>c.classList.toggle("sel", state.skills.has(c.textContent)));
+    [...$("levelSeg").children].forEach(b=>b.classList.toggle("sel", b.querySelector("b").textContent===state.level));
+    await run();
+  }catch(e){
+    btn.disabled=false; btn.textContent="✓ Done";
+    alert("Feedback update failed: "+e.message);
+  }
+}
+</script>
+</body>
+</html>
