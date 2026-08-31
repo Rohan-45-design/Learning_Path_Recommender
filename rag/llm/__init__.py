@@ -23,11 +23,7 @@ class CourseLLM:
         query_lower = query.lower()
 
         # Anti-Hallucination & Off-topic Guard
-        if (
-            not retrieved_documents or
-            any(kw in query_lower for kw in OFF_TOPIC_KEYWORDS) or
-            (retrieved_documents and retrieved_documents[0].get("distance", 1.0) > 0.68)
-        ):
+        if not retrieved_documents or any(kw in query_lower for kw in OFF_TOPIC_KEYWORDS):
             return (
                 "I don't have enough information in the learning resource database to answer that.",
                 [],

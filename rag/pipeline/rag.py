@@ -8,6 +8,7 @@ from rag.learning_path import LearningPathGenerator
 from rag.explainability import RecommendationExplainer
 from rag.feedback import LearnerFeedbackEngine
 from rag.llm import CourseLLM
+from learner_db.state_manager import LearnerStateManager
 
 class RAGResponse(BaseModel):
     answer: str
@@ -34,6 +35,36 @@ class RAGPipeline:
         self.explainer = RecommendationExplainer()
         self.feedback_engine = LearnerFeedbackEngine()
         self.llm = CourseLLM()
+        self.state_manager = LearnerStateManager()
+
+    def _resolve_learner_profile(
+        self,
+        student_id: Optional[str] = None,
+        learner_profile: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        if learner_profile:
+            # Harmonize skills and current_skills
+            skills = learner_profile.get("current_skills") or learner_profile.get("skills") or ["Python", "Machine Learning"]
+            profile = dict(learner_profile)
+            profile["current_skills"] = skills
+            profile["skills"] = skills
+            profile.setdefault("goal", "GenAI Engineer")
+            profile.setdefault("level", "Intermediate")
+            return profile
+
+        if student_id:
+            profile = self.state_manager.get_learner_profile_dict(student_id)
+            skills = profile.get("current_skills") or profile.get("skills") or ["Python", "Machine Learning"]
+            profile["current_skills"] = skills
+            profile["skills"] = skills
+            return profile
+
+        return {
+            "goal": "GenAI Engineer",
+            "current_skills": ["Python", "Machine Learning"],
+            "skills": ["Python", "Machine Learning"],
+            "level": "Intermediate"
+        }
 
     def retrieve_resources(
         self,
@@ -43,14 +74,12 @@ class RAGPipeline:
         skill_gaps: Optional[List[str]] = None,
         top_k: int = 5
     ) -> List[Dict[str, Any]]:
-        if learner_profile is None:
-            learner_profile = {"goal": "AI Engineer", "current_skills": ["Python", "Machine Learning"], "level": "Intermediate"}
-
-        goal = learner_profile.get("goal", "AI Engineer")
-        learner_skills = learner_profile.get("current_skills", learner_profile.get("skills", []))
+        resolved_profile = self._resolve_learner_profile(student_id, learner_profile)
+        goal = resolved_profile.get("goal", "GenAI Engineer")
+        learner_skills = resolved_profile.get("current_skills", [])
         next_skill = self.goal_engine.get_next_target_skill(goal, learner_skills)
 
-        raw_results = self.retriever.retrieve(query, learner_profile=learner_profile, next_skill=next_skill, top_k=15)
+        raw_results = self.retriever.retrieve(query, learner_profile=resolved_profile, next_skill=next_skill, top_k=15)
         retrieved_docs = []
         if raw_results and "documents" in raw_results and raw_results["documents"]:
             docs = raw_results["documents"][0]
@@ -59,7 +88,7 @@ class RAGPipeline:
             for doc, meta, dist in zip(docs, metas, distances):
                 retrieved_docs.append({"content": doc, "metadata": meta, "distance": dist})
 
-        reranked = self.reranker.rerank(retrieved_docs, learner_profile, next_skill=next_skill, top_k=top_k)
+        reranked = self.reranker.rerank(retrieved_docs, resolved_profile, next_skill=next_skill, top_k=top_k)
         candidates = []
         for r in reranked:
             meta = r.get("metadata", {})
@@ -85,11 +114,9 @@ class RAGPipeline:
         top_k_retrieval: int = 15,
         top_k_final: int = 3
     ) -> RAGResponse:
-        if learner_profile is None:
-            learner_profile = {"goal": "AI Engineer", "current_skills": ["Python", "Machine Learning"], "level": "Intermediate"}
-
-        goal = learner_profile.get("goal", "AI Engineer")
-        learner_skills = learner_profile.get("current_skills", learner_profile.get("skills", []))
+        resolved_profile = self._resolve_learner_profile(student_id, learner_profile)
+        goal = resolved_profile.get("goal", "GenAI Engineer")
+        learner_skills = resolved_profile.get("current_skills", [])
 
         # 1. Skill Gap Analysis & Target Skill Selection
         gaps = self.goal_engine.get_skill_gaps(goal, learner_skills)
@@ -105,7 +132,7 @@ class RAGPipeline:
         # 3. ChromaDB Semantic Retrieval (Top 15 candidates)
         raw_results = self.retriever.retrieve(
             query,
-            learner_profile=learner_profile,
+            learner_profile=resolved_profile,
             skill_gaps=gaps,
             next_skill=next_skill,
             top_k=top_k_retrieval
@@ -122,19 +149,19 @@ class RAGPipeline:
         # 4. Learner-Aware Reranking & Sequence Check (Select Top 3)
         reranked_docs = self.reranker.rerank(
             retrieved_docs,
-            learner_profile,
+            resolved_profile,
             next_skill=next_skill,
             top_k=top_k_final
         )
 
         # 5. Build Prerequisite Chain & Grounded LLM Response
-        prereq_chain = [learner_profile.get("current_skills", [])[0] if learner_profile.get("current_skills") else "Python"]
+        prereq_chain = [resolved_profile.get("current_skills", [])[0] if resolved_profile.get("current_skills") else "Python"]
         if next_skill:
             prereq_chain.append(next_skill)
 
         answer, sources, confidence = self.llm.generate_response(
             query=query,
-            learner_profile=learner_profile,
+            learner_profile=resolved_profile,
             retrieved_documents=reranked_docs,
             next_skill=next_skill,
             skill_gaps=gaps,
